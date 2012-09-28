@@ -222,7 +222,7 @@ class Testapilibrary_Controller extends Controller {
 			date("h"),
 			date("i"),
 			date("a"),
-			"Category 1",
+			"1",
 			"6",
 			"-11",
 			"Liberia");
