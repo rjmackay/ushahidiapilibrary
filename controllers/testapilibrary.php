@@ -159,7 +159,11 @@ class Testapilibrary_Controller extends Controller {
 		
 		foreach($response->getCategories() as $cat)
 		{
-			echo "Category Name: ". $cat->category_title. "<br/>";
+			echo "Category Name: ". $cat['category']->category_title. "<br/>";
+			foreach ($cat['translations'] as $translation)
+			{
+				echo "Translation: Lang: ".$translation->locale." Name: ". $translation->category_title. "<br/>";
+			}
 		}
 	}
 	
@@ -181,7 +185,11 @@ class Testapilibrary_Controller extends Controller {
 		echo "<strong>Code:</strong> ". $response->getError_code() . " <strong>Message:</strong> ". $response->getError_message() . "<br/><br/>";
 		foreach($response->getCategories() as $cat)
 		{
-			echo "Category Name: ". $cat->category_title. "<br/>";
+			echo "Category Name: ". $cat['category']->category_title. "<br/>";
+			foreach ($cat['translations'] as $translation)
+			{
+				echo "Translation: Lang: ".$translation->locale." Name: ". $translation->category_title. "<br/>";
+			}
 		}
 	}
 	

@@ -129,7 +129,24 @@ class UshApiLib_Categories_Task extends UshApiLib_Task_Base
 	    			{
 	    				$category->category_position = $cat[UshApiLib_Task_Base::CATEGORY_INDEX][UshApiLib_Task_Base::CATEGORY_INDEX. "_". UshApiLib_Task_Base::POSITION_INDEX];
 	    			}
-	    			$categories[$cat[UshApiLib_Task_Base::CATEGORY_INDEX][UshApiLib_Task_Base::CATEGORY_ID_INDEX]] = $category;
+						
+						$translations = array();
+						if (isset($cat[UshApiLib_Task_Base::TRANSLATIONS_INDEX]))
+						{
+							foreach ($cat[UshApiLib_Task_Base::TRANSLATIONS_INDEX] as $lang => $translation)
+							{
+								$category_lang = new Category_Lang_Model();
+								$category_lang->locale = $lang;
+								$category_lang->category_title = $translation[UshApiLib_Task_Base::CATEGORY_INDEX. "_". UshApiLib_Task_Base::TITLE_INDEX];
+								$category_lang->category_description = $translation[UshApiLib_Task_Base::CATEGORY_INDEX. "_". UshApiLib_Task_Base::DESCRIPTION_INDEX];
+								$translations[] = $category_lang;
+							}
+						}
+						
+	    			$categories[$cat[UshApiLib_Task_Base::CATEGORY_INDEX][UshApiLib_Task_Base::CATEGORY_ID_INDEX]] = array(
+	    				UshApiLib_Task_Base::CATEGORY_INDEX => $category,
+	    				UshApiLib_Task_Base::TRANSLATIONS_INDEX => $translations
+						);
     		}
     		
 	    	$response = new UshApiLib_Categories_Response($data_array[UshApiLib_Task_Base::ERROR_INDEX][UshApiLib_Task_Base::ERROR_CODE_INDEX], 

@@ -54,6 +54,7 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 	const PARENT_ID_INDEX = "parent_id";
 	const ICON_INDEX = "icon";
 	const POSITION_INDEX = "position";
+	const TRANSLATIONS_INDEX = "translations";
 	
 	const INCIDENTS_INDEX = "incidents";
 	const INCIDENT_INDEX = "incident";
