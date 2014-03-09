@@ -1,5 +1,5 @@
-<?php 
-defined('SYSPATH') or die('No direct script access allowed'); 
+<?php
+defined('SYSPATH') or die('No direct script access allowed');
 /**
  * This class is used as the base class to encapuslate the execution of a task on the Ushahidi API
  *
@@ -19,32 +19,32 @@ defined('SYSPATH') or die('No direct script access allowed');
 
 class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
  {
- 	
+
  	// The parameters we're going to use when executing
  	protected  $task_parameter = null;
 
  	// The name of the task to execute
  	protected $task_name = null;
- 	
+
  	//the low down on the site we're executing API calls on
  	protected $site_info = null;
- 	
+
  	//json response string
  	protected $json = null;
- 	
- 	
- 	//"Constants" that define the index to find stuff in the JSON. I know they aren't real constants, 
+
+
+ 	//"Constants" that define the index to find stuff in the JSON. I know they aren't real constants,
  	//but I don't want to flood the global name space
  	const ERROR_INDEX = "error";
 	const ERROR_CODE_INDEX = "code";
 	const ERROR_MESSAGE_INDEX = "message";
 	const PAYLOAD_INDEX = "payload";
-	
+
 	const SERVICE_INDEX = "service";
 	const SERVICES_INDEX = "services";
 	const ID_INDEX = "id";
 	const API_KEY_INDEX = "apikey";
-	
+
 	const CATEGORIES_INDEX = "categories";
 	const CATEGORY_INDEX = "category";
 	const CATEGORY_ID_INDEX = "id";
@@ -55,7 +55,7 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 	const ICON_INDEX = "icon";
 	const POSITION_INDEX = "position";
 	const TRANSLATIONS_INDEX = "translations";
-	
+
 	const INCIDENTS_INDEX = "incidents";
 	const INCIDENT_INDEX = "incident";
 	const INCIDENT_ID_INDEX = "incidentid";
@@ -76,12 +76,12 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 	const LINK_URL_INDEX = "link_url";
 	const THUMB_URL_INDEX = "thumb_url";
 	const LOCATION_INDEX = "location";
-	
- 	
- 	
+
+
+
  	/**
  	 * Constructor
- 	 * 
+ 	 *
  	 * @param The parameters of the task at hand $task_parameter
  	 */
  	public function __construct($task_parameter, $site_info)
@@ -89,9 +89,9 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
         parent::__construct();
 
         $this->task_parameter = $task_parameter;
-        $this->site_info = $site_info; 
+        $this->site_info = $site_info;
     }
-    
+
     /**
      * Returns the raw json string returned, null if there was a problem
      */
@@ -99,17 +99,17 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
     {
     	return $this->json;
     }
-    
+
     /**
      * Runs the API task against the specified site with the given paramters
-     * Returns the 
+     * Returns the
      */
     public function execute()
     {
     	$this->query_site();
     	return $this->parse_json();
     }
-    
+
     /**
      * Runs the Curl call to pass in the paramters to specified site and stores the returned json
      */
@@ -117,11 +117,11 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
     {
     	//reset this
     	$this->json = null;
-    	
+
     	//set the url and initialize curl
-		$url = $this->site_info->geturl();		
+		$url = $this->site_info->geturl();
 		$ch = curl_init($url);
-				
+
 		if(!$ch)
 		{
 			$this->json = '{"error":{"code":"1000","message":"Malformed URL"}}';
@@ -129,14 +129,14 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 		}
 		//set the parameters we're sending
 		$parameters = $this->task_parameter->get_query_string();
-		
-		
+
 		// use http basic auth
 		if ($this->site_info->getUsername())
 		{
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC ) ;
 			curl_setopt($ch, CURLOPT_USERPWD, $this->site_info->getUsername().":".$this->site_info->getPassword());
 		}
+
 		//use post
 		curl_setopt($ch, CURLOPT_POST, 1);
     	if(($error = curl_error($ch)) != "")
@@ -145,7 +145,7 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 			$this->json = json_encode(array("error"=>array("code"=>"C".$error_code, "message"=>$error)));
 			return $this->json;
 		}
-		
+
 		//set post parameters
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $parameters);
     	if(($error = curl_error($ch)) != "")
@@ -154,7 +154,7 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 			$this->json = json_encode(array("error"=>array("code"=>"C".$error_code, "message"=>$error)));
 			return $this->json;
 		}
-		
+
 		//set return transfer true
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     	if(($error = curl_error($ch)) != "")
@@ -163,7 +163,7 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 			$this->json = json_encode(array("error"=>array("code"=>"C".$error_code, "message"=>$error)));
 			return $this->json;
 		}
-		
+
 		// set follow location
 	    curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
     	if(($error = curl_error($ch)) != "")
@@ -188,16 +188,16 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 			$this->json = json_encode(array("error"=>array("code"=>"C".$error_code, "message"=>$error)));
 			return $this->json;
 		}
-		
+
 		$this->json = curl_exec($ch);
-		
+
     	if(($error = curl_error($ch)) != "")
 		{
 			$error_code = curl_errno($ch);
 			$this->json = json_encode(array("error"=>array("code"=>"C".$error_code, "message"=>$error)));
 			return $this->json;
 		}
-		
+
 		$http_error = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if(intval($http_error) >= 400)
 		{
@@ -205,12 +205,12 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 			$this->json = json_encode(array("error"=>array("code"=>"H".$error_code, "message"=>"HTTP Error: ".$error_code)));
 			return $this->json;
 		}
-		
+
 		curl_close($ch);
 		return $this->json;
     }
-    
-    
+
+
     /**
      * Finds the json from the query and parses it
      * Since this is the base class this just looks for the error object and parses that
@@ -221,9 +221,9 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
     	{
     		return null;
     	}
-    	
+
     	$data_array = json_decode($this->json, true);
-   
+
     	if(!isset($data_array[UshApiLib_Task_Base::ERROR_INDEX]))
     	{
     		return new UshApiLib_Task_Response_Base("U1", "Unable to parse JSON string. use getJson() on the task object to see what was returned");
@@ -236,15 +236,15 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
     	{
     		return new UshApiLib_Task_Response_Base("U1", "Unable to parse JSON string. use getJson() on the task object to see what was returned");
     	}
-    	
-    	
-    	$response = new UshApiLib_Task_Response_Base($data_array[UshApiLib_Task_Base::ERROR_INDEX][UshApiLib_Task_Base::ERROR_CODE_INDEX], 
+
+
+    	$response = new UshApiLib_Task_Response_Base($data_array[UshApiLib_Task_Base::ERROR_INDEX][UshApiLib_Task_Base::ERROR_CODE_INDEX],
     		$data_array[UshApiLib_Task_Base::ERROR_INDEX][UshApiLib_Task_Base::ERROR_MESSAGE_INDEX]);
-    	
+
     	return $response;
-    	
-    } 
-    
-    
-    
+
+    }
+
+
+
  }
