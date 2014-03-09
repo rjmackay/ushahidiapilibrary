@@ -131,6 +131,12 @@ class UshApiLib_Task_Base extends UshApiLib_Ushahidi_API_Library_Base
 		$parameters = $this->task_parameter->get_query_string();
 		
 		
+		// use http basic auth
+		if ($this->site_info->getUsername())
+		{
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC ) ;
+			curl_setopt($ch, CURLOPT_USERPWD, $this->site_info->getUsername().":".$this->site_info->getPassword());
+		}
 		//use post
 		curl_setopt($ch, CURLOPT_POST, 1);
     	if(($error = curl_error($ch)) != "")
